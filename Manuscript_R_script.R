@@ -24,6 +24,7 @@ spe <- read.csv("spehydro.csv", row.names=1)
 #
 # Calculate metrics
 N0 <- rowSums(spe > 0)          #Taxonomic richness
+H <- diversity(spe)             #Shannon entropy (base "e")
 N1 <- exp(H)                    #Shannon diversity (base "e")
 N2 <- diversity(spe, "inv")     #Simpson diversity
 E10 <- N1 / N0                  #Shannon evenness (Hill's ratio), E10
@@ -85,7 +86,7 @@ summary(anoyear2015)
 #Load pre-prepared file of faunal data as input
 spebetadiv15 <- read.csv("betadiv_15.csv", row.names=1)
 
-# Sørensen-based Podani indices (quantitative form = percentage difference index)
+# SÃ¸rensen-based Podani indices (quantitative form = percentage difference index)
 (macro.pod.pd <- beta.div.comp(spebetadiv15, coef = "S", quant = TRUE))
 
 macro.rich <- as.matrix(macro.pod.pd$rich)         #Richness difference matrix
