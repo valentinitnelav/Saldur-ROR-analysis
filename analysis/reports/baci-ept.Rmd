@@ -1,0 +1,515 @@
+---
+title: "BACI for EPT proportion"
+author: "Valentin Stefan"
+date: "12/17/2020"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    toc_collapsed: false
+    toc_depth: 3
+    number_sections: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+# set root directory as two directories above the current location (where the
+# scotti-alberto-eurac.Rproj is located)
+knitr::opts_knit$set(root.dir = '../../')
+```
+
+# Load packages
+
+```{r packages, message=FALSE}
+# Source scripts that contains various helper functions for reading and plotting
+# data.
+source(file = "analysis/helper-scripts/helper-functions.r")
+
+load_install_packages()
+
+# Variable of interest
+varb <- "ept"
+```
+
+# Data exploration
+
+```{r prepare-data}
+# Read data
+baci_dt <- fread("data/Indices_BACIv2.csv", stringsAsFactors = TRUE)
+
+# Rename some columns:
+setnames(baci_dt, 
+         old = c("BACItime", "BACIpos", "Site", "Ind./m2", "% EPT", "Total organisms", "Total EPT organisms"),
+         new = c("period_ba", "treatment_ci", "site_f", "ind_m2", "ept_prc", "N", "N_EPT"))
+
+# Create a factor column `year_f` where I rounded the year to integer and then
+# converted to factor type.
+baci_dt[, year_f := Year %>% round(digits = 0) %>% factor]
+
+# This will be needed for testing for overdispersation
+baci_dt[, obs := 1:.N]
+
+# Prepare % EPT as proportion (ratio)
+baci_dt[, ept := N_EPT/N]
+
+str(baci_dt)
+```
+
+# Exploratory plots
+
+## Histograms of the explained variable
+
+```{r}
+hist(baci_dt[[varb]],
+     main = paste("Histogram of" , varb),
+     xlab = varb)
+```
+
+## Preliminary plot
+
+```{r fig-1, fig.cap = "Fig. 1 - Exploratory plot, observed values and trends. Thicker lines represent mean lines. Thinner lines stand for each site. There is only one control site which actually overlaps with the mean line for control."}
+# the helper function exploratory_plot() was defined in
+# "analysis/helper-scripts/helper-functions.r"
+preliminary_plot <- exploratory_plot(varb) 
+preliminary_plot
+```
+
+Values tend to decrease with time, though then go back up in 2019, but there is no clear difference between "impact" and "control".
+
+### Interactive plot
+
+This interactive plot is useful to hover the mouse over the corners of the lines to see which line belongs to which site. This can complement the labeling of the sites from above, in case when labels overlap.
+```{r intercative-plot, warning=FALSE}
+ggplotly(preliminary_plot)
+```
+
+# GLMM fitting
+
+## GLM family
+
+The variable `r varb` is proportion of continuous data with values between 0 and 1. There are two ways of thinking about this:
+
+1) Treat the variable as "real" proportions and use a [beta distribution](https://en.wikipedia.org/wiki/Beta_distribution). For R see [Beta Regression in R](https://epub.wu.ac.at/726/1/document.pdf). Problem is that this distribution family in not implemented in `glm` or `glmer`.
+
+2) Consider the variable as a form of success rate from some total cases, and this can work here because for example `E10 = N1 / N0`, `E20 = N2 / N0` and `%EPT = N_ENT/N`, where `N` is number of total organisms and `N0` is (total) species richness. If we go with this "philosophical" aproach, then we can use `family = binomial(link = "logit")` and use the `weights` argument in the `glmer()` function as we did in our paper (Pardini, 2018). There the `weights` is the denominator of the ratio (so, `N0` or `N`).
+
+See also this discussion that is similar to our case here [Logistic regression-like model for non-discrete outcomes](https://stats.stackexchange.com/questions/43785/logistic-regression-like-model-for-non-discrete-outcomes). Also see this [Beta distribution GLM with categorical independents and proportional response](https://stats.stackexchange.com/questions/169391/beta-distribution-glm-with-categorical-independents-and-proportional-response), or this [Proportion data - beta distribution v. GLM with binomial distribution and logit link](https://stats.stackexchange.com/questions/123443/proportion-data-beta-distribution-v-glm-with-binomial-distribution-and-logit?rq=1).
+
+For more on selecting the proper distribution family see these resources:
+
+- in [this stats course material](https://www.sagepub.com/sites/default/files/upm-binaries/21121_Chapter_15.pdf) they cover when to use which family of distributions: "In addition to the familiar **Gaussian** and **binomial** families (the latter for proportions), the **Poisson** family is useful for modeling count data, and the **gamma** and **inverse-Gaussian** families for modeling positive continuous data, where the conditional variance of Y increases with its expectation."
+
+- see also [How to determine which family function to use when fitting generalized linear model (glm) in R?](https://www.researchgate.net/post/How-to-determine-which-family-function-to-use-when-fitting-generalized-linear-model-glm-in-R). Some ideas collected from there:
+
+  - Gaussian family : for continuous decimal data with normal distribution, like weight, length, et al.
+  - Poisson or quasipoisson family or negative binomial: for positive integer or small natural number like count, individual number, frequency.
+  - Binomial or quasibinomial family: binary data like 0 and 1, or proportion like survival number vs death number, positive frequency vs negative frequency, winning times vs the number of failtures, et al.
+  - Gamma family : usually describe time data like the time or duration of the occurrence of the event. If you have data that's left-limited, say at zero, and potentially skewed
+  - If your model is overdispered, you should make a correction by choosing quasi-binomial or quasi-poisson.
+  - beta regression: if you have proportion data between 0 and 1.
+
+- also, for picking the right distribution family, this link is very useful too: [How to decide which glm family to use?](https://stats.stackexchange.com/questions/190763/how-to-decide-which-glm-family-to-use).
+
+So, the problem with beta distribution is that they are not implemented in the `glm` or `glmer` functions. There is a separate package for beta regression - [betareg](https://cran.r-project.org/web/packages/betareg/index.html). Is introduced by this paper [Beta Regression in R](https://epub.wu.ac.at/726/1/document.pdf). I am not familiar with how it works and how to integrate it in the pipeline that I have developed so far, or if is possible.
+
+But in [How can we use GLMs with a response variable that has a beta distribution?](https://www.researchgate.net/post/How_can_we_use_GLMs_with_a_response_variable_that_has_a_beta_distribution) is pointed out that is important how the residuals distribute and not our explained variable. 
+
+Borrowing from Zuur (2010), we could actually just look at the diagnostic plots, like Q-Q plot of residuals and check what distribution family fits best.
+
+So, I tried the gamma distribution and the binomial one. For the link functions for each family, see `help(family)`:
+
+- the Gamma family accepts the links "inverse", "identity" and "log". I will test them all below;
+- the binomial family accepts the links "logit", "probit", "cauchit", (corresponding to logistic, normal and Cauchy CDFs respectively) "log" and "cloglog" (complementary log-log). The 'logit' link is the default one.
+
+For more about link functions, check also:
+
+- [Wikipedia page](https://en.wikipedia.org/wiki/Generalized_linear_model#Link_function);
+- [Generalized Linear Models understanding the link function](https://www.r-bloggers.com/2018/10/generalized-linear-models-understanding-the-link-function/)
+- [Understand Link Function in Generalized Linear Model](https://stats.stackexchange.com/questions/259683/understand-link-function-in-generalized-linear-model)
+
+Note that, for the binomial family, I think we should use the "logit" or "probit" link functions, because:
+
+- "The purpose of the **logit link** is to take a linear combination of the covariate values (which may take any value between ±∞) and convert those values to the scale of a probability, i.e., between 0 and 1", from [Fundamental Principals of Statistical Inference](https://www.sciencedirect.com/topics/mathematics/logit-link-function#:~:text=1%20The%20Logit%20Link%20Function&text=The%20purpose%20of%20the%20logit,function%20is%20defined%20in%20Eq.). 
+
+- "Closely related to the logit function (and logit model) are the **probit function** and probit model. The logit and probit are both sigmoid functions with a domain between 0 and 1, which makes them both quantile functions", from [Logit - wikipedia](https://en.wikipedia.org/wiki/Logit)
+
+I also tested the "log" link below, but I would go rather with the default "logit". You can of course go with "probit" as well. Both are equally valid since their purpose is to map values between ±∞ to the 0-1 domain.
+
+### Gamma(link = "inverse")
+```{r}
+m_gamma_inverse <- glmer(ept ~ period_ba * treatment_ci + (1|site_f) + (1|year_f), 
+                         data = baci_dt, family = Gamma(link = "inverse"))
+summary(m_gamma_inverse)
+
+# Residuals
+qqnorm(residuals(m_gamma_inverse), main = "Q-Q plot - residuals")
+qqline(residuals(m_gamma_inverse), col = "red")
+```
+
+### Gamma(link = "identity")
+```{r}
+m_gamma_identity <- glmer(ept ~ period_ba * treatment_ci + (1|site_f) + (1|year_f), 
+                          data = baci_dt, family = Gamma(link = "identity"))
+summary(m_gamma_identity)
+
+# Residuals
+qqnorm(residuals(m_gamma_identity), main = "Q-Q plot - residuals")
+qqline(residuals(m_gamma_identity), col = "red")
+```
+
+### Gamma(link = "log")
+```{r}
+m_gamma_log <- glmer(ept ~ period_ba * treatment_ci + (1|site_f) + (1|year_f), 
+                     data = baci_dt, family = Gamma(link = "log"))
+summary(m_gamma_log)
+
+# Residuals
+qqnorm(residuals(m_gamma_log), main = "Q-Q plot - residuals")
+qqline(residuals(m_gamma_log), col = "red")
+```
+
+### binomial(link = "logit")
+```{r}
+m_binomial_logit <- glmer(N_EPT/N ~ period_ba * treatment_ci + (1|site_f) + (1|year_f), 
+                          data = baci_dt, weights = N, family = binomial(link = "logit"))
+summary(m_binomial_logit)
+
+# Residuals
+qqnorm(residuals(m_binomial_logit), main = "Q-Q plot - residuals")
+qqline(residuals(m_binomial_logit), col = "red")
+```
+
+### binomial(link = "probit")
+```{r}
+m_binomial_probit <- glmer(N_EPT/N ~ period_ba * treatment_ci + (1|site_f) + (1|year_f), 
+                           data = baci_dt, weights = N, family = binomial(link = "probit"))
+summary(m_binomial_probit)
+
+# Residuals
+qqnorm(residuals(m_binomial_probit), main = "Q-Q plot - residuals")
+qqline(residuals(m_binomial_probit), col = "red")
+```
+
+### binomial(link = "log")
+
+This one fails.
+
+```{r}
+try(
+  m_binomial_log <- glmer(N_EPT/N ~ period_ba * treatment_ci + (1|site_f) + (1|year_f), 
+                          data = baci_dt, weights = N, family = binomial(link = "log"))
+)
+```
+
+### AIC comparison
+
+Note that the `aictab()` function cannot compare models where the explained variable is defined differently. So, the below would give an error: `You must use the same response variable for all models`.
+```{r}
+try(
+  aictab(cand.set = list(m_gamma_inverse,
+                         m_gamma_identity,
+                         m_gamma_log,
+                         m_binomial_logit), 
+         modnames = c("1-m_gamma_inverse",
+                      "2-m_gamma_identity",
+                      "3-m_gamma_log",
+                      "4-m_binomial_logit"), 
+         second.ord = TRUE)
+)
+```
+
+However, I think we are not actually allowed to compare across different types of models as we have here. In this post [Can AIC compare across different types of model?](https://stats.stackexchange.com/questions/4997/can-aic-compare-across-different-types-of-model) they mention: "AIC is a function of the log likelihood. If both types of model compute the log likelihood the same way (i.e. include the same constant) then yes you can, **if the models are nested** [...] You have to be sure that the same normalising constant is being applied in the log likelihood calculation [...] The point about nested models is also up for discussion. Some say AIC is only valid for nested models as that is how the theory is presented/worked through. Others use it for all sorts of comparisons".
+
+```{r}
+sapply(list(m_gamma_inverse = m_gamma_inverse,
+            m_gamma_identity = m_gamma_identity,
+            m_gamma_log = m_gamma_log,
+            m_binomial_logit = m_binomial_logit,
+            # m_binomial_log = m_binomial_log,
+            m_binomial_probit = m_binomial_probit),
+       FUN = AIC)
+```
+
+I think the AIC comparison doesn't make sense here though between distribution families, unless if they are from the same family, but different link functions. I would go anyways with using the `binomial` family with the `weights` argument.
+
+## Specify fixed and random effects
+
+Specify fixed and random effects and test for random effects structure.
+The general model formula with fixed effects is `varb ~ period_ba + treatment_ci + period_ba:treatment_ci`
+Note the interaction term `period_ba:treatment_ci` which is the "BACI effect" (see Schwarz, 2015). Testing for its statistical significance is equivalent to testing for an environmental impact (Schwarz, 2015). To the fixed effects model, random effects are added: `site_f` and `year_f`. 
+
+Below, it was tested if `site_f:year_f` interaction should be kept in the model.
+
+```{r aic-table}
+cand_set_1 <- list() # create an empty list to be populated with models
+# Fit model without the interaction of random effects (site_f and year_f)
+cand_set_1[[1]] <- glmer(N_EPT/N ~ period_ba * treatment_ci + (1|site_f) + (1|year_f), 
+                         data = baci_dt, weights = N, family = binomial(link = "logit"))
+# Model with interaction in the random effects structure
+cand_set_1[[2]] <- glmer(N_EPT/N ~ period_ba * treatment_ci + (1|site_f) + (1|year_f) + (1|site_f:year_f), 
+                         data = baci_dt, weights = N, family = binomial(link = "logit"))
+# AICc comparison
+AIC.res.table <- aictab(cand.set = list(cand_set_1[[1]], cand_set_1[[2]]), 
+                        modnames = c("1-without-inter-rdm-eff",
+                                     "2-with-inter-rdm-eff"), 
+                        second.ord = TRUE)
+AIC.res.table
+```
+
+The models are compared using the Akaike Information Criterion (AIC). The preferred model should be the one with a smaller AIC value. A model selection approach similar to the one proposed by Burnham & Anderson (2002) is used. The authors suggest the rule of thumb according to which models with AIC difference smaller or equal than 2 (delta-AIC ≤ 2) have substantial empirical support, those with 4 ≤ delta-AIC ≤ 7 have considerably less and those with delta-AIC > 10 have essentially none. On the other hand, they also suggest that the model with delta-AIC > 10 might still be used for inference if the sample size is large.
+
+In the case above, according to AICc, we would select the model with the interaction term of the random effects.
+
+However, for the second model, if we look at the model structure, we realize that for all the random effects, including their interaction, we have a variance and standard deviation of near zero. This indicates that the model is overparameterized - see Bates (2015) and also Matuschek (2017). I tracked down these papers from this discussion - [What does 'singular fit' mean in Mixed Models?](https://www.researchgate.net/post/What_does_singular_fit_mean_in_Mixed_Models). 
+
+Bates (2015) offers very clear arguments and also R code for some study cases. They point very well at this problem, e.g: "The information in the data may not be sufficient to support estimations of such complex models and may result in singular co-variance matrices, even when the LMM is identifiable in principle. In this case, we need to replace the complex LMM specification by a more parsimonious one" and singular co-variance matrices "corresponds to estimates of zero random-effects variance in a model with random-intercepts only or a correlation of ±1 in a model with correlated random intercepts and slopes".
+
+You can also consult the vignettes with R code and examples from Bates (2015) in the package [RePsychLing](https://github.com/dmbates/RePsychLing). The package in not on CRAN yet, but can be installed from GitHub with `devtools::install_github("dmbates/RePsychLing")`. Then call `library(RePsychLing)` and then `browseVignettes(package = "RePsychLing")`.
+
+See also [How to cope with a singular fit in a linear mixed model (lme4)?](https://stackoverflow.com/questions/54597496/how-to-cope-with-a-singular-fit-in-a-linear-mixed-model-lme4).
+
+So, we can check also the summary of the models. This is useful to see some diagnostics. If the variances of the random effects are zero or near zero, then Bates (2015) points out that such models are rather "degenerated"/overparameterized.
+This is the case for the 2nd model:
+```{r}
+summary(cand_set_1[[1]])
+summary(cand_set_1[[2]])
+```
+
+Bates (2015) also points out in their paper and vignettes that one can use their helper function `rePCA` to carry PCA of random-effects covariance matrix. If there would be zero near zero values in the output matrices, then those models indicate overfitting and are overparameterized.
+
+The 2nd model is "degenerated":
+```{r}
+summary(lme4::rePCA(cand_set_1[[1]]))
+summary(lme4::rePCA(cand_set_1[[2]]))
+```
+
+Additionally to the AIC test, we can also run the log likelihood ratio test (LRT) as per Bates (2015). 
+
+So, if the LRT test gives a significant p-value, that indicates that there are statistically significant differences between the two nested models. That is, we can lose information if we go with the simpler model. In such cases, we can go in the favor of keeping the more complex model, which can capture better the variance in the given data. However, if there are no significant differences between the models, then we can safely discard the more complex model.
+
+Note that, LRT is applicable only for nested models (e.g. one model includes one extra variable or interaction term in the random or fixed effects structure). The explained variable always has to be the same.
+
+In the LRT below we notice there is a significant difference between the two models. This test, as the AICc one, favors the more complex model (2nd model).
+```{r}
+# LRT test
+anova(cand_set_1[[1]], cand_set_1[[2]])
+```
+
+All in all, we got contradictory results. AICs & LRT tests favor the more complex model, but that model looks like being "degenerated"/overparameterized. Out of parsimony in such a confusing situation, I will still go with the simpler model. The contradictory situation might indicate that the binomial distribution might be not the best choice and maybe we get more consistent and clear results if we use the beta regression (see betareg R package and details in the section "GLM family" above). I am not sure how to implement that for now and is just a speculation. The analysis below should be valid as well.
+
+We could also try the gamma distribution, though that is more suitable when the dependent variable varies between 0 and infinity. In our case it varies between `r baci_dt[[varb]] %>% range %>% round(digits = 2)`.
+
+## Overdispersion
+
+Testing for overdispersion in the mixed model.
+
+"Overdispersion: the occurrence of more variance in the data than predicted by a statistical model." (Bolker, 2009). In case of overdispersed then we can fit a model with observation-level random effects see Harrison XA (2014) or Harrison XA (2015).
+
+```{r}
+# Model without overdispersion control
+model.no.disp.ctrl <- cand_set_1[[1]]
+
+# Model with overdispersion control
+model.with.disp.ctrl <- update(model.no.disp.ctrl, . ~ . + (1|obs))
+
+# Measure overdispersion in the two binomial glmer-models
+blmeco::dispersion_glmer(model.no.disp.ctrl)
+blmeco::dispersion_glmer(model.with.disp.ctrl)
+```
+
+In `help(dispersion_glmer)` is mentioned that "according to recommendations by D. Bates, if its value is between 0.75 and 1.4, there may NOT be an overdispersion problem."
+
+In our case, the scale parameter for the model without overdispersion control (`model.no.disp.ctrl`) is far above 1.4, so accounting for overdispersion can be justified. When adjusting for overdispersion, we get a big drop in the overdispersion indicator/parameter. 
+
+We can also use the AICc and LRT tests here to check which model we could consider:
+```{r}
+# AICc test
+aictab(cand.set = list(model.no.disp.ctrl, model.with.disp.ctrl), 
+                       modnames = c("1-without-overdispersion-control",
+                                    "2-with-overdispersion-control"), 
+                       second.ord = TRUE)
+
+# LRT test
+anova(model.no.disp.ctrl, model.with.disp.ctrl)
+```
+
+Also both the LRT and AICc test go in favor of the model with overdispersion control.
+
+Lucky, both models are NOT "degenerated"/overparameterized when we run the diagnostic proposed in Bates (2015). For both we get standard deviations different from zero for their random effects:
+```{r}
+summary(lme4::rePCA(model.no.disp.ctrl))
+summary(lme4::rePCA(model.with.disp.ctrl))
+```
+
+So, we can go with the model accounting for overdispersion.
+```{r}
+model <- model.with.disp.ctrl
+```
+
+## Model assumptions / Diagnostic plots
+
+Check model assumptions visually.
+
+There seem to be no obvious issues in the distribution of the residuals. Some residuals seem to misbehave. In the plot "fitted vs residuals", the model seems to underestimate small values of `r varb` and also overestimates the big values of `r varb`. However, in the "Fitted values vs Observed", the model seems to perform very well.
+
+```{r}
+# Residuals
+qqnorm(residuals(model), main = "Q-Q plot - residuals")
+qqline(residuals(model), col = "red")
+
+# inspecting the random effects (see also Bolker, 2009 - supp 1)
+qqnorm(unlist(ranef(model)), main = "Q-Q plot, random effects")
+qqline(unlist(ranef(model)), col = "red")
+
+# fitted vs residuals
+scatter.smooth(fitted(model),
+               residuals(model, type = "pearson"),
+               main = "fitted vs residuals",
+               xlab = "Fitted Values", ylab = "Residuals")
+abline(h=0, col="red")
+
+# fitted vs observed
+scatter.smooth(fitted(model), baci_dt[[varb]],
+               main = "Fitted values vs Observed",
+               xlab = "Fitted Values", ylab = "Observed")
+abline(0, 1, col = "red")
+```
+
+## Significance of BACI
+
+We will test for statistical significance of BACI interaction term using a parametric bootstrap comparison between nested models (see Halekoh & Højsgaard 2014 and Bolker, 2009 - supp 1).
+
+The nested models that we compare are:
+
+- the model without the interaction between the fixed effects (the BACI effect)
+- model with the BACI effect
+
+```{r}
+# Model without the BACI interaction term
+model.no.interaction <- glmer(N_EPT/N ~ period_ba + treatment_ci + (1|site_f) + (1|year_f) + (1|site_f:year_f) + (1|obs), 
+                              data = baci_dt, weights = N, family = binomial(link = "logit"))
+```
+
+Calculate reference distribution of likelihood ratio statistic (this can be time consuming):
+```{r cache=TRUE}
+system.time({
+  refdist <- PBrefdist(largeModel = model, 
+                       smallModel = model.no.interaction, 
+                       nsim = 100, seed = 2020, cl = 6)
+}) 
+```
+
+Below, both likelihood ratio (LRT) and parametric bootstrap tests (PBtest, which is a bit more conservative) give no significant p-values. Therefore, the interaction term (the BACI effect) is not statistically significant (so, there is no environmental impact). The results of these two tests can be reported in the paper (the stat and p-value from below). See section "formulations in the paper" section below for some suggestions.
+
+```{r}
+# Model comparison test using the reference distribution from above
+model_comparison <- PBmodcomp(largeModel = model, 
+                              smallModel = model.no.interaction,
+                              ref = refdist)
+model_comparison
+```
+
+Also the AICc test confirms there is no difference between the two models:
+```{r}
+aictab(cand.set = list(model, model.no.interaction), 
+       modnames = c("1-with-baci",
+                    "2-without-baci"), 
+       second.ord = TRUE)
+```
+
+## Model coefficients 
+
+Extract coefficients from final model. These are helpful for reporting in the paper together with the BACI value - see "Formulations in the paper" section below.
+
+Remove the intercept for extracting group means and their confidence intervals. See Schielzeth H (2010)
+```{r}
+final.model <- model
+final.model.noIntercept <- update(final.model, . ~ . -1)
+```
+
+To get the estimated means (Least-squares means/predicted marginal means/treatment means) one can do:
+```{r}
+estimates <- lsmeans::lsmeans(final.model.noIntercept, ~ treatment_ci:period_ba, type = "response")
+# https://stats.stackexchange.com/questions/192062/issue-calculating-adjusted-means-for-glmer-model
+# Confidence level used: 0.95 
+estimates
+```
+
+As indicated in Schwarz CJ (2015), the BACI effect is computed as BACI = avgCA-avgCB-(avgIA-avgIB):
+```{r}
+# get the estimates only (without CI)
+est <- predict(ref.grid(final.model.noIntercept), type = "response") 
+# give names to the estimates vector
+names(est) <- c("CA","CB","IA","IB"); est 
+baci <- est["CA"]-est["CB"]-(est["IA"]-est["IB"])
+baci
+
+contrast(regrid(estimates), list(baci=c(1,-1,-1,1)))
+
+baci_ci <- confint(contrast(regrid(estimates), list(baci=c(1,-1,-1,1))))
+baci_ci
+```
+
+## Coefficient of determination (R^2)
+
+Calculate conditional and marginal coefficient of determination (R^2). The values are helpful for reporting in the paper together with the BACI value - see "Formulations in the paper" section below.
+```{r}
+R2 <- MuMIn::r.squaredGLMM(final.model)  
+R2
+```
+**Rm2** = represents the variance explained by fixed factors (Marginal R_GLMM²)
+
+**R2c** = variance explained by both fixed and random factors, i.e. the entire model (Conditional R_GLMM²)
+
+In the help file of `help(r.squaredGLMM)` we get this information:
+"Three different methods are available for deriving the observation-level variance: the delta method, lognormal approximation and using the trigamma function. The delta method can be used with for all distributions and link functions, while lognormal approximation and trigamma function are limited to distributions with logarithmic link. Trigamma-estimate is recommended whenever available. Additionally, for binomial distributions, theoretical variances exist specific for each link function distribution."
+
+Therefore, in the paper, I would report the delta values for R2c.
+
+# Interaction plot
+
+This plot will confirm as well visually that there is no BACI effect. The confidence intervals of the means overlap clearly and the two lines are almost parallel. If there was some effect, the lines most probably would intersect and also the impact line would have clearly a different slope from the control one.
+
+```{r fig-2, fig.cap = "Fig. 2 - Interaction plot for the model considering sites (and not subsamples). Least square means values. Error bars show the ±95% CI."}
+# the helper function interaction_plot() was defined in
+# "analysis/helper-scripts/helper-functions.r"
+interaction_plot(estimates, varb)
+```
+
+Comparing the observed mean values (marked with x symbol in the graph below) with the estimated mean values (model coefficients; marked with a plain dot and connected with lines), we can see that the model fits good enough. That is, the estimated means for `r varb` are close to the observed mean values.
+
+```{r fig-3, fig.cap = "Fig. 3 - Interaction plot depicting both the observed mean values (marked with x) and the estimated mean values (model coefficents, marked with plain dot). Error bars show the ±95% CI."}
+interaction_plot(estimates, varb) +
+  # Add observed means as dots with bootstrapped CIs
+  stat_summary(data = baci_dt,
+               aes(x = period_ba, 
+                   y = get(varb), 
+                   group = treatment_ci,
+                   color = treatment_ci),
+               fun.data = "mean_cl_boot", 
+               # geom = "point", 
+               size = 0.5,
+               shape = 4,
+               position = position_dodge(width = 0.1),
+               show.legend = TRUE)
+```
+
+# Formulations in the paper
+
+I give here some example of a formulation from our paper (Pardini et al 2018) to put in the results section. You find the PDF to our paper in the shared dropbox folder at [this link](https://www.dropbox.com/sh/j6mysmpkhi2mu9v/AABzgBv5M1IUgAnR-0rbSurxa?dl=0). Check also the methods section in our paper to get inspired about how to formulate things.
+
+```{r, echo=FALSE}
+# This chunk is helpful for preparing results to report them automatically R
+# Markdown below
+es_dt <- summary(estimates) %>% as.data.table()
+# Depending on the link function, the 3rd column can be called "rate" or
+# "response", so rename it to "pred" (from predicted)
+colnames(es_dt)[3] <- "pred"
+```
+
+Our final GLMM model explained `r R2["delta", "R2c"] %>% round(3)` of the variance in `r varb`. 
+There was no significant BACI period × treatment effect (PBtest = `r model_comparison$test[2, "stat"] %>% round(3)`, p = `r model_comparison$test[2, "p.value"] %>% round(3)`). 
+The BACI effect estimated from the model (the difference of the two changes: [control after − control before] − [impact after − impact before]) was `r round(baci, 2)` ± `r round(baci_ci$SE, 2)` standard error.
+
+The estimated mean `r varb` in the control sites varied from `r es_dt[treatment_ci == "control"][period_ba == "before"][, pred] %>% round(2)` to `r es_dt[treatment_ci == "control"][period_ba == "after"][, pred] %>% round(2)` and in the impact sites varied from `r es_dt[treatment_ci == "impact"][period_ba == "before"][, pred] %>% round(2)` to `r es_dt[treatment_ci == "impact"][period_ba == "after"][, pred] %>% round(2)`, before and after the construction of the dam (Fig 2). 

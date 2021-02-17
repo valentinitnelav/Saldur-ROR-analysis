@@ -1,0 +1,496 @@
+---
+title: "BACI for N0"
+author: "Valentin Stefan"
+date: "12/15/2020"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    toc_collapsed: false
+    toc_depth: 3
+    number_sections: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+# set root directory as two directories above the current location (where the
+# scotti-alberto-eurac.Rproj is located in reference to where baci-n0.Rmd is
+# located)
+knitr::opts_knit$set(root.dir = '../../') 
+```
+
+# Load packages
+
+```{r packages, message=FALSE}
+# Source scripts that contains various helper functions for reading and plotting
+# data.
+source(file = "analysis/helper-scripts/helper-functions.r")
+
+load_install_packages()
+
+# Variable of interest
+varb <- "N0"
+```
+
+# Data exploration
+
+For data processing I am using the `data.table` syntax. Might be a bit cryptic but I can adapt to `tidyverse` if needed.
+
+Read data
+```{r}
+baci_dt <- fread("data/Indices_BACI.csv", stringsAsFactors = TRUE)
+```
+
+I renamed some columns:
+```{r}
+setnames(baci_dt, 
+         old = c("BACItime", "BACIpos", "Site", "Ind./m2", "% EPT"),
+         new = c("period_ba", "treatment_ci", "site_f", "ind_m2", "ept_prc"))
+```
+
+Not sure why, but for 2015 there is a .1 and .2 temporal sample. For the purpose of this example, I created a factor column `year_f` where I rounded the year to integer and then converted to factor type.
+```{r}
+baci_dt[, .N, keyby = Year] # counts of samples per year
+baci_dt[, year_f := Year %>% round(digits = 0) %>% factor]
+baci_dt[, .N, keyby = year_f]
+```
+
+## Exploratory plots
+
+```{r}
+hist(baci_dt[[varb]],
+     main = paste("Histogram of" , varb),
+     xlab = varb)
+```
+
+```{r fig-1, fig.cap = "Fig. 1 - Exploratory plot, observed values and trends. Thicker lines represent mean lines. Thinner lines stand for each site. There is only one control site which actually overlaps with the mean line for control."}
+# the helper function exploratory_plot() was defined in
+# "analysis/helper-scripts/helper-functions.r"
+preliminary_plot <- exploratory_plot(varb) 
+preliminary_plot
+```
+
+In the graph above, N0 ~ year, one can see that these is not much of an effect of the treatment after or before the "impact" (construction of the dam) on the variable N0. We will see that this indeed doesn't show up in the statistical analysis below.
+
+Note that, when we add the site labels we can observe how N0 values for the impact sites 2A, 2B & 2C are very close to site 1 (control site), while the values for sites 2D and 3 (which are further downstream) are higher, polling the average line of impact sites above the line of the control site.
+
+## Interactive plot
+
+This interactive plot is useful to hover the mouse over the corners of the lines to see which line belongs to which site. This can complement the labeling of the sites from above, in case when labels overlap.
+```{r}
+ggplotly(preliminary_plot)
+```
+
+
+# GLMM fitting
+
+## Specify fixed and random effects 
+
+Specify fixed and random effects and test for random effects structure.
+The general model formula with fixed effects is `y ~ period_ba + treatment_ci + period_ba:treatment_ci`
+Note the interaction term `period_ba:treatment_ci` which is the "BACI effect" (see Schwarz, 2015). Testing for its statistical significance is equivalent to testing for an environmental impact (Schwarz, 2015). To the fixed effects model, random effects are added: `site_f` and `year_f`. 
+
+Below, it was tested if `site_f:year_f` interaction should be kept in the model.
+
+Note that, for `N0` and also for variable `Ind./m2` we should use `family = poisson()` in the model definition. For the variables `E10`, `E20` and `% EPT` should use `family = binomial()`. Note that for `% EPT` we should divide by 100 so that the values are between 0 and 1.
+
+```{r}
+cand_set_1 <- list() # create an empty list to be populated with models
+# Fit model without the interaction of random effects (site_f and year_f)
+cand_set_1[[1]] <- glmer(N0 ~ period_ba * treatment_ci + (1|site_f) + (1|year_f), 
+                         data = baci_dt, family = poisson())
+# Model with interaction in the random effects structure
+cand_set_1[[2]] <- glmer(N0 ~ period_ba * treatment_ci + (1|site_f)+ (1|year_f) + (1|site_f:year_f), 
+                         data = baci_dt, family = poisson())
+# AICc comparison
+AIC.res.table <- aictab(cand.set = list(cand_set_1[[1]], cand_set_1[[2]]), 
+                        modnames = c("1-without-inter-rdm-eff",
+                                     "2-with-inter-rdm-eff"), 
+                        second.ord = TRUE)
+AIC.res.table
+```
+
+The models are compared using the Akaike Information Criterion (AIC). The preferred model should be the one with a smaller AIC value. A model selection approach similar to the one proposed by Burnham & Anderson (2002) is used. The authors suggest the rule of thumb according to which models with AIC difference smaller or equal than 2 (delta-AIC ≤ 2) have substantial empirical support, those with 4 ≤ delta-AIC ≤ 7 have considerably less and those with delta-AIC > 10 have essentially none. On the other hand, they also suggest that the model with delta-AIC > 10 might still be used for inference if the sample size is large.
+
+In the case above, I would select the simpler model, that is the model without the interaction term of the random effects.
+
+Moreover, with the more complex model, `cand_set_1[[2]]`, because we include the interaction term in the random effects structure, `site_f:year_f`, we get the warning message `boundary (singular) fit: see ?isSingular`. If we look at the model structure, we realize that for this particular interaction we have a variance and standard deviation of zero. This indicates that the maximal model is overparameterized - see Bates (2015) and also Matuschek (2017). I tracked down these papers from this discussion - [What does 'singular fit' mean in Mixed Models?](https://www.researchgate.net/post/What_does_singular_fit_mean_in_Mixed_Models). 
+
+Bates (2015) offers very clear arguments and also R code for some study cases. They point very well at this problem, e.g: "The information in the data may not be sufficient to support estimations of such complex models and may result in singular co-variance matrices, even when the LMM is identifiable in principle. In this case, we need to replace the complex LMM specification by a more parsimonious one" and singular co-variance matrices "corresponds to estimates of zero random-effects variance in a model with random-intercepts only or a correlation of ±1 in a model with correlated random intercepts and slopes".
+
+You can also consult the vignettes with R code and examples from Bates (2015) in the package [RePsychLing](https://github.com/dmbates/RePsychLing). The package in not on CRAN yet, but can be installed from GitHub with `devtools::install_github("dmbates/RePsychLing")`. Then call `library(RePsychLing)` and then `browseVignettes(package = "RePsychLing")`.
+
+See also [How to cope with a singular fit in a linear mixed model (lme4)?](https://stackoverflow.com/questions/54597496/how-to-cope-with-a-singular-fit-in-a-linear-mixed-model-lme4).
+
+So, the more complex model has a variance of zero for the interaction term in the random effects structure. We can drop that interaction from further analyses, so we stay with the more parsimonious model. That is also supported by the AIC analysis above.
+
+The full complex model, with interaction in the random effects structure:
+```{r}
+summary(cand_set_1[[2]])
+```
+
+The more parsimonious model:
+```{r}
+summary(cand_set_1[[1]])
+```
+
+
+## Overdispersion
+
+Testing for overdispersion in the mixed model.
+
+"Overdispersion: the occurrence of more variance in the data than predicted by a statistical model." (Bolker, 2009). In case of overdispersed then fit model with observation-level random effects see Harrison XA (2014) or Harrison XA (2015).
+
+```{r}
+# Model without overdispersion control
+model.no.disp.ctrl <- cand_set_1[[1]]
+
+# Model with overdispersion control
+baci_dt[, obs := 1:.N]
+model.with.disp.ctrl <- update(model.no.disp.ctrl, . ~ . + (1|obs))
+
+# Measure overdispersion in the two binomial glmer-models
+blmeco::dispersion_glmer(model.no.disp.ctrl)
+blmeco::dispersion_glmer(model.with.disp.ctrl)
+```
+
+In `help(dispersion_glmer)` is mentioned that "according to recommendations by D. Bates, if its value is between 0.75 and 1.4, there may NOT be an overdispersion problem."
+In our case, also the scale parameter didn't change much between the two cases above (with or without overdispersion), so accounting for overdispersion is not justified. Therefore, we keep the simpler model (always we keep the parsimony philosophy in mind, as in the case of AIC above - when the case, the simpler the model, the better).
+
+```{r}
+model <- model.no.disp.ctrl
+```
+
+
+## Model assumptions / Diagnostic plots
+
+Check model assumptions visually.
+
+There seem to be no obvious issues in the distribution of the residuals.
+
+```{r}
+qqnorm(residuals(model), main = "Q-Q plot - residuals")
+qqline(residuals(model), col="red")
+
+# inspecting the random effects (see also Bolker, 2009 - supp 1)
+qqnorm(unlist(ranef(model)), main = "Q-Q plot, random effects")
+qqline(unlist(ranef(model)), col="red")
+
+# fitted vs residuals
+scatter.smooth(fitted(model), residuals(model, type="pearson"),
+               main="fitted vs residuals",
+               xlab="Fitted Values", ylab="Residuals")
+abline(h=0, col="red")
+
+# fitted vs observed
+scatter.smooth(fitted(model), baci_dt[["N0"]],
+               xlab = "Fitted Values", ylab = "Observed")
+abline(0, 1, col = "red")
+```
+
+## Significance of BACI
+
+We will test for statistical significance of BACI interaction term using a parametric bootstrap comparison between nested models (see Halekoh & Højsgaard 2014 and Bolker, 2009 - supp 1).
+
+The nested models that we compare are:
+
+- the model without the interaction between the fixed effects (the BACI effect)
+- model with the BACI effect
+
+```{r}
+# Model without the BACI interaction term
+model.no.interaction <- glmer(N0 ~ period_ba + treatment_ci + (1|site_f) + (1|year_f), 
+                              data = baci_dt, family = poisson())
+```
+
+Calculate reference distribution of likelihood ratio statistic (this can be time consuming):
+```{r cache=TRUE}
+system.time({
+  refdist<- PBrefdist(largeModel = model, 
+                      smallModel = model.no.interaction, 
+                      nsim = 100, seed = 2020, cl = 6)
+})
+```
+
+Note that I have tried also `nsim = 1000` and there was no difference with `nsim = 100` (which is faster).
+
+Below, both likelihood ratio (LRT) and parametric bootstrap tests (PBtest, which is a bit more conservative) give no significant p-values. Therefore, the interaction term (the BACI effect) is not statistically significant (so, there is no environmental impact). The results of these two tests can be reported in the paper (the stat and p-value from below). See section "formulations in the paper" section below for some suggestions.
+
+```{r}
+# Model comparison test using the reference distribution from above
+model_comparison <- PBmodcomp(largeModel = model, 
+                              smallModel = model.no.interaction,
+                              ref = refdist)
+model_comparison
+```
+
+
+## Model coefficients 
+
+Extract coefficients from final model. These are helpful for reporting in the paper together with the BACI value - see "Formulations in the paper" section below.
+
+Remove the intercept for extracting group means and their confidence intervals. See Schielzeth H (2010)
+```{r}
+final.model <- model
+final.model.noIntercept <- update(final.model, . ~ . -1)
+```
+
+To get the estimated means (Least-squares means/predicted marginal means/treatment means) one can do:
+```{r}
+estimates <- lsmeans::lsmeans(final.model.noIntercept, ~ treatment_ci:period_ba, type = "response")
+# https://stats.stackexchange.com/questions/192062/issue-calculating-adjusted-means-for-glmer-model
+# Confidence level used: 0.95 
+estimates
+```
+
+As indicated in Schwarz CJ (2015), the BACI effect is computed as BACI = avgCA-avgCB-(avgIA-avgIB):
+```{r}
+# get the estimates only (without CI)
+est <- predict(ref.grid(final.model.noIntercept), type = "response") 
+# give names to the estimates vector
+names(est) <- c("CA","CB","IA","IB"); est 
+baci <- est["CA"]-est["CB"]-(est["IA"]-est["IB"])
+baci
+```
+
+One can also get the BACI effect like:
+```{r}
+contrast(regrid(estimates), list(baci=c(1,-1,-1,1)))
+```
+
+Or with asymptotic CI-s:
+```{r}
+confint(contrast(regrid(estimates), list(baci=c(1,-1,-1,1)))) 
+# Confidence level used: 0.95 
+# https://stats.stackexchange.com/questions/241523/testing-for-pairwise-proportion-differences
+```
+
+## Coefficient of determination (R^2)
+
+Calculate conditional and marginal coefficient of determination (R^2). The values are helpful for reporting in the paper together with the BACI value - see "Formulations in the paper" section below.
+```{r}
+MuMIn::r.squaredGLMM(final.model)  
+```
+**Rm2** = represents the variance explained by fixed factors (Marginal R_GLMM²)
+
+**R2c** = variance explained by both fixed and random factors, i.e. the entire model (Conditional R_GLMM²)
+
+In the help file of `help(r.squaredGLMM)` we get this information:
+"Three different methods are available for deriving the observation-level variance: the delta method, lognormal approximation and using the trigamma function. The delta method can be used with for all distributions and link functions, while lognormal approximation and trigamma function are limited to distributions with logarithmic link. Trigamma-estimate is recommended whenever available. Additionally, for binomial distributions, theoretical variances exist specific for each link function distribution."
+
+Therefore, in the paper, I would report the delta values for R2c.
+
+# Interaction plot
+
+This plot will confirm as well visually that there is no BACI effect. The confidence intervals of the means overlap clearly and the two lines are almost parallel. If there was some effect, the lines most probably would intersect and also the impact line would have clearly a different slope from the control one.
+
+```{r fig-2, fig.cap = "Fig. 2 - Interaction plot for the model considering sites (and not subsamples). Least square means values. Error bars show the ±95% CI."}
+# the helper function interaction_plot() was defined in
+# "analysis/helper-scripts/helper-functions.r"
+interaction_plot(estimates, varb)
+```
+
+```{r fig-3, fig.cap = "Fig. 3 - Interaction plot depicting both the observed mean values (marked with x) and the estimated mean values (model coefficents, marked with plain dot). Error bars show the ±95% CI."}
+interaction_plot(estimates, varb) +
+  # Add observed means as dots with bootstrapped CIs
+  stat_summary(data = baci_dt,
+               aes(x = period_ba, 
+                   y = get(varb), 
+                   group = treatment_ci,
+                   color = treatment_ci),
+               fun.data = "mean_cl_boot", 
+               # geom = "point", 
+               size = 0.5,
+               shape = 4,
+               position = position_dodge(width = 0.1),
+               show.legend = TRUE)
+```
+
+# Formulations in the paper
+
+I give here some example of a formulation from our paper (Pardini et al 2018) to put in the results section. You find the PDF to our paper in the shared dropbox folder at [this link](https://www.dropbox.com/sh/j6mysmpkhi2mu9v/AABzgBv5M1IUgAnR-0rbSurxa?dl=0). Check also the methods section in our paper to get inspired about how to formulate things.
+
+Our final GLMM model explained 0.471 of the variance in N0. There was no significant BACI period × treatment effect (PBtest = 0.022, p = 0.869). Our data show that the construction of the dam did not significantly impact the observed N0. The estimated mean N0 in the control sites varied only little from 7.81 to 8.23 and in the impact sites varied from 10.95 to 11.24 (Fig 2). The BACI effect estimated from the model (the difference of the two changes: [control after − control before] − [impact after − impact before]) was 0.129 ± 1.45 standard error.
+
+# Include subsamples in analysis
+
+## GLMM fitting (model with subsamples)
+
+Create a new column that combine site and subsample. Will use this new column as random effect together with year.
+```{r}
+baci_dt[, site_subsample := paste(site_f, Subsample, sep = "-")]
+```
+
+### Specify fixed and random effects (model with subsamples)
+
+```{r}
+cand_set_2 <- list() # create an empty list to be populated with models
+# Fit model without the interaction of random effects (site_f and year_f)
+cand_set_2[[1]] <- glmer(N0 ~ period_ba * treatment_ci + (1|site_subsample) + (1|year_f), 
+                         data = baci_dt, family = poisson())
+# Model with interaction in the random effects structure
+cand_set_2[[2]] <- glmer(N0 ~ period_ba * treatment_ci + (1|site_subsample)+ (1|year_f) + (1|site_subsample:year_f), 
+                         data = baci_dt, family = poisson())
+# AICc comparison
+AIC.res.table <- aictab(cand.set = list(cand_set_2[[1]], cand_set_2[[2]]), 
+                        modnames = c("1-without-inter-rdm-eff",
+                                     "2-with-inter-rdm-eff"), 
+                        second.ord = TRUE)
+AIC.res.table
+```
+
+We select the model with the smallest AIC. Again, here it means selecting the more parsimonious one.
+
+The full complex model, with interaction in the random effects structure:
+```{r}
+summary(cand_set_2[[2]])
+```
+
+The more parsimonious model:
+```{r}
+summary(cand_set_2[[1]])
+```
+
+### Overdispersion (model with subsamples)
+
+```{r}
+# Model without overdispersion control
+model_2.no.disp.ctrl <- cand_set_2[[1]]
+
+# Model with overdispersion control
+model_2.with.disp.ctrl <- update(model_2.no.disp.ctrl, . ~ . + (1|obs))
+
+# Measure overdispersion in the two binomial glmer-models
+blmeco::dispersion_glmer(model_2.no.disp.ctrl)
+blmeco::dispersion_glmer(model_2.with.disp.ctrl)
+```
+
+As mentioned in the first analysis above, also here accounting for overdispersion is not justified.
+```{r}
+model_2 <- model_2.no.disp.ctrl
+```
+
+
+### Model assumptions / Diagnostic plots (model with subsamples)
+
+There seem to be no obvious issues in the distribution of the residuals.
+
+```{r}
+# Residuals
+qqnorm(residuals(model_2), main = "Q-Q plot - residuals")
+qqline(residuals(model_2), col="red")
+
+# inspecting the random effects (see also Bolker, 2009 - supp 1)
+qqnorm(unlist(ranef(model_2)), main = "Q-Q plot, random effects")
+qqline(unlist(ranef(model_2)), col="red")
+
+# fitted vs residuals
+scatter.smooth(fitted(model_2), residuals(model_2, type="pearson"),
+               main="fitted vs residuals",
+               xlab="Fitted Values", ylab="Residuals")
+abline(h=0, col="red")
+
+# fitted vs observed
+scatter.smooth(fitted(model), baci_dt[["N0"]],
+               xlab = "Fitted Values", ylab = "Observed")
+abline(0, 1, col = "red")
+```
+
+### Significance of BACI (model with subsamples)
+
+```{r}
+# Model without the BACI interaction term
+model_2.no.interaction <- glmer(N0 ~ period_ba + treatment_ci + (1|site_subsample) + (1|year_f), 
+                              data = baci_dt, family = poisson())
+```
+
+Calculate reference distribution of likelihood ratio statistic (this can be time consuming):
+```{r cache=TRUE}
+system.time({
+  refdist_2 <- PBrefdist(largeModel = model_2, 
+                         smallModel = model_2.no.interaction, 
+                         nsim = 100, seed = 2020, cl = 6)
+})
+```
+
+As in the analysis above, both likelihood ratio (LRT) and parametric bootstrap tests (PBtest) give no significant p-values. Therefore, the interaction term (the BACI effect) is not statistically significant (so, there is no environmental impact).
+
+```{r}
+# Model comparison test using the reference distribution from above
+model_comparison_2 <- PBmodcomp(largeModel = model_2, 
+                                smallModel = model_2.no.interaction,
+                                ref = refdist)
+model_comparison_2
+```
+
+### Model coefficients (model with subsamples)
+
+```{r}
+final.model_2 <- model_2
+final.model.noIntercept_2 <- update(final.model_2, . ~ . -1)
+estimates_2 <- lsmeans::lsmeans(final.model.noIntercept_2, ~ treatment_ci:period_ba, type = "response")
+estimates_2
+```
+
+Get BACI value if needed (all 3 methods below are valid and should give identical results):
+```{r}
+# 1)
+est_2 <- predict(ref.grid(final.model.noIntercept_2), type = "response") 
+names(est_2) <- c("CA","CB","IA","IB"); est_2 
+baci_2 <- est_2["CA"]-est_2["CB"]-(est_2["IA"]-est_2["IB"])
+baci_2
+
+# 2)
+contrast(regrid(estimates_2), list(baci=c(1,-1,-1,1)))
+
+# 3)
+confint(contrast(regrid(estimates_2), list(baci=c(1,-1,-1,1)))) 
+```
+
+
+### Coefficient of determination (R^2 for model with subsamples) & model comparison
+
+```{r}
+MuMIn::r.squaredGLMM(final.model_2)  
+```
+
+Note that the R2c for the model using also subsalmple is a bit smaller that the model where we use only site. This is not necessarily a strong criteria for model selection, but can indicate that the model including subsample has a smaller goodness of fit.
+
+We could run an AICc test to get a statistical confirmation of this assumption:
+
+```{r}
+AIC.res.table_3 <- aictab(cand.set = list(final.model, final.model_2), 
+                          modnames = c("1-model-with-sites",
+                                       "2-model-with-subsample"), 
+                          second.ord = TRUE)
+AIC.res.table_3
+```
+
+Indeed, the model that includes only sites and does not consider the subsamples has a far smaller AICc and is therefore a better model.
+
+## Interaction plot (model with subsamples)
+
+```{r, fig.cap = "Fig. 3 - Interaction plot for the model considering subsamples. Least square means values. Error bars show the ±95% CI."}
+interaction_plot(estimates_2, varb)
+```
+
+# References
+
+Bates, D., Kliegl, R., Vasishth, S., & Baayen, H. (2015). Parsimonious mixed models. arXiv preprint arXiv:1506.04967.
+
+Bolker BM et al. (2009) Generalized linear mixed models: a practical guide for ecology and evolution. Trends in ecology & evolution 24:127–135 at http://www.sciencedirect.com/science/article/pii/S0169534709000196
+  
+Burnham, K. & Anderson, D., 2002. Model selection and multimodel inference: a practical information-theoretic approach, New York: Springer.
+
+Halekoh U, Højsgaard S (2014) A kenward-roger approximation and parametric bootstrap methods for tests in linear mixed models–the R package pbkrtest. Journal of Statistical Software 59:1–32 at http://www.jstatsoft.org/v59/i09/
+
+Harrison XA (2014) Using observation-level random effects to model overdispersion in count data in ecology and evolution. PeerJ 2:e616 https://doi.org/10.7717/peerj.616
+
+Harrison XA (2015) A comparison of observation-level random effect and Beta-Binomial models for modelling overdispersion in Binomial data in ecology & evolution. PeerJ 3:e1114 at https://peerj.com/articles/1114.pdf
+
+Matuschek, H., Kliegl, R., Vasishth, S., Baayen, H., & Bates, D. (2017). Balancing Type I error and power in linear mixed models. Journal of Memory and Language, 94, 305-315.
+
+Schwarz CJ (2015) Analysis of BACI experiments. In Course Notes for Beginning and Intermediate Statistics. at http://people.stat.sfu.ca/~cschwarz/Stat-650/Notes/PDFbigbook-R/R-part013.pdf
+
+Schielzeth H (2010) Simple means to improve the interpretability of regression coefficients. Methods in Ecology and Evolution, 1(2), 103-113.

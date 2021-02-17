@@ -1,0 +1,79 @@
+---
+title: "BACI for E10"
+author: "Valentin Stefan"
+date: "12/17/2020"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    toc_collapsed: false
+    toc_depth: 3
+    number_sections: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+# set root directory as two directories above the current location (where the
+# scotti-alberto-eurac.Rproj is located in reference to where baci-n0.Rmd is
+# located)
+knitr::opts_knit$set(root.dir = '../../')
+```
+
+# Load packages
+
+```{r packages, message=FALSE}
+# Source scripts that contains various helper functions for reading and plotting
+# data.
+source(file = "analysis/helper-scripts/helper-functions.r")
+
+load_install_packages()
+```
+
+# Prepare data
+
+```{r prepare-data}
+# Read data
+baci_dt <- fread("data/Indices_BACI.csv", stringsAsFactors = TRUE)
+
+# Rename some columns:
+setnames(baci_dt, 
+         old = c("BACItime", "BACIpos", "Site", "Ind./m2", "% EPT"),
+         new = c("period_ba", "treatment_ci", "site_f", "ind_m2", "ept_prc"))
+
+# Divide % EPT by 100 so that it can be used as values between 0 and 1
+baci_dt[, ept := ept_prc/100]
+
+# Because we can test family = poisson() for the model estimating Ind./m2, we
+# need to have integers in the variable. I rounded the values.
+baci_dt[, ind_m2_int := round(ind_m2, digits = 0)]
+baci_dt[, ind_m2_log := log(ind_m2)]
+
+vars <- c("N0", "N1", "N2", "E10", "E20", "J", "ept_prc", "ind_m2")
+```
+
+# Histograms of the explained variable
+
+```{r}
+for (i in 1:length(vars)){
+  varb <- vars[i]
+  hist(baci_dt[[varb]],
+       main = paste("Histogram of" , varb),
+       xlab = varb)
+}
+```
+
+# Preliminary plots
+
+Exploratory plots - observed values and trends. Thicker lines represent mean lines. Thinner lines stand for each site. There is only one control site which actually overlaps with the mean line for control.
+
+```{r}
+# the helper function exploratory_plot() was defined in
+# "analysis/helper-scripts/helper-functions.r"
+
+for (i in 1:length(vars)){
+  varb <- vars[i]
+  print(exploratory_plot(varb))
+}
+```
+
