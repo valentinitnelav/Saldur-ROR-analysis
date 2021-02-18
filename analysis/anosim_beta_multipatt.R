@@ -10,7 +10,7 @@
 # - Analysis of similarities (ANOSIM);
 # - Spatial beta-diversity;
 # - Temporal beta-diversity;
-# - Multi-level pattern analysis (Indicator species analysis)
+# - Multi-level pattern analysis (Indicator taxa analysis)
 #
 # The BACI analysis using the GLMM framework is documented in analysis/baci_glmm
 #
