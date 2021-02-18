@@ -10,7 +10,7 @@
 # - Analysis of similarities (ANOSIM);
 # - Spatial beta-diversity;
 # - Temporal beta-diversity;
-# - Multi-level pattern analysis (individual analysis)
+# - Multi-level pattern analysis (Indicator species analysis)
 #
 # The BACI analysis using the GLMM framework is documented in analysis/baci_glmm
 #
@@ -44,7 +44,7 @@ E10 <- N1 / N0                  # Shannon evenness (Hill's ratio), E10
 E20 <- N2 / N0                  # Simpson evenness (Hill's ratio), E20
 
 # density per square metre at sub-sample level is calculated dividing each cell
-# of "spe" by /0.2024
+# of "spe" by /0.2024 (based on the size of our Surber sampler)
 
 # % EPT (Ephemeroptera-Plecoptera-Trichoptera) is calculated on the total of the
 # organisms.
