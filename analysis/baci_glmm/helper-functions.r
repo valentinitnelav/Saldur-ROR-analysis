@@ -6,9 +6,9 @@
 
 load_install_packages <- function(){
   # List of packages to be used in the R session
-  .packages = c("lme4", "AICcmodavg", "MuMIn", "pbkrtest", "optimx",
-                "parallel", "data.table", "blmeco", "lsmeans",
-                "ggplot2", "plotly" , "directlabels")
+  .packages = c("glmmTMB", "AICcmodavg", "lsmeans", "DHARMa",
+                "parallel", "data.table", "magrittr",
+                "ggplot2", "directlabels")
   # Install CRAN packages (if not already installed)
   .inst <- .packages %in% installed.packages()
   if(length(.packages[!.inst]) > 0) install.packages(.packages[!.inst])
@@ -109,8 +109,8 @@ interaction_plot <- function(estimates, varb){
     geom_point(size = 1.5, 
                position = pd) +
     # plot 95% CIs
-    geom_errorbar(aes(ymax = asymp.UCL, 
-                      ymin = asymp.LCL), 
+    geom_errorbar(aes(ymax = upper.CL, 
+                      ymin = lower.CL), 
                   size = 0.2, 
                   width = 0.15, 
                   linetype = "solid", 

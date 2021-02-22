@@ -1,5 +1,5 @@
 ---
-title: "BACI analysis for Shannon evenness (Hill’s ratio, E10)"
+title: "BACI analysis for density (individuals/m2)"
 author: "Valentin Stefan"
 date: "21 Feb 2021"
 output:
@@ -48,7 +48,7 @@ baci_dt[, year_f := Year %>% round(digits = 0) %>% factor]
 baci_dt[, obs := 1:.N]
 
 # Variable of interest
-varb <- "E10"
+varb <- "ind_m2"
 ```
 
 # Exploratory plots
@@ -88,12 +88,12 @@ Below, it was tested if `site_f:year_f` interaction should be kept in the model.
 models <- list()
 
 # Fit model without the interaction of random effects (site_f and year_f)
-models[[1]] <- glmmTMB(E10 ~ period_ba * treatment_ci + (1|site_f) + (1|year_f), 
-                       data = baci_dt, family = beta_family(link = "logit"))
+models[[1]] <- glmmTMB(ind_m2 ~ period_ba * treatment_ci + (1|site_f) + (1|year_f), 
+                       data = baci_dt, family = Gamma(link = "log"))
 
 # Model with interaction in the random effects structure
-models[[2]] <- glmmTMB(E10 ~ period_ba * treatment_ci + (1|site_f) + (1|year_f) + (1|site_f:year_f), 
-                       data = baci_dt, family = beta_family(link = "logit"))
+models[[2]] <- glmmTMB(ind_m2 ~ period_ba * treatment_ci + (1|site_f) + (1|year_f) + (1|site_f:year_f), 
+                       data = baci_dt, family = Gamma(link = "log"))
 ```
 
 Note that the warnings `'giveCsparse' has been deprecated; setting 'repr = "T"' for you` are expected - see comment of Ben Bolker [here](https://github.com/glmmTMB/glmmTMB/issues/615#issuecomment-763183844).
@@ -180,8 +180,8 @@ The nested models that we compare are:
 
 ```{r warning=FALSE}
 # Model without the BACI interaction term
-model.no.interaction <- glmmTMB(E10 ~ period_ba + treatment_ci + (1|site_f) + (1|year_f), 
-                                data = baci_dt, family = beta_family(link = "logit"))
+model.no.interaction <- glmmTMB(ind_m2 ~ period_ba + treatment_ci + (1|site_f) + (1|year_f), 
+                                data = baci_dt, family = Gamma(link = "log"))
 
 # LRT
 lrt <- anova(model, model.no.interaction)
