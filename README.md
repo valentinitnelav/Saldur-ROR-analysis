@@ -24,19 +24,19 @@ Check also the readme file in the *analysis* folder with details about the scrip
 The original data are hosted by "PANGAEA - Data Publisher for Earth & Environmental Science".
 Data repository at this permanent address: https://doi.pangaea.de/10.1594/PANGAEA.922524
 
-From this original file we derived all the pre-prepared files included here, for the sake of faster analyses. All the derived data needed to run the analysis is stored in this repository in the directory "data".
+From this original file we derived all the pre-prepared files included and stored in this repository in the "data" folder, which can be used as input files or templates for faster analyses.
 
 ## Scripts/Analysis
 
-The analysis of similarities, spatial and temporal beta-diversity and multi-level pattern analysis are presented in the script `analysis/anosim_beta_multipatt.R`.
+The analysis of similarities, spatial and temporal beta-diversity calculations, and indicator taxa analysis are presented in the script `analysis/anosim_beta_multipatt.R`.
 
-The Before-After-Control-Impact (BACI) analysis using the GLMM framework is documented in the directory `analysis/baci_glmm`. The reader is encouraged to fallow the html reports. Each report corresponds to the following variables of interest:
+The Before-After-Control-Impact (BACI) analysis using the GLMM framework is documented in the directory `analysis/baci_glmm`. The reader is encouraged to follow the html reports. Each report corresponds to the following variables of interest:
 
 - taxonomic richness (N0) -- baci-n0.html (generated from baci-n0.Rmd);
 - density (individuals/m2) -- baci-density.html (generated from baci-density.Rmd);
 - % Ephemeroptera–Plecoptera–Tricoptera (% EPT) -- baci-ept.html (generated from baci-ept.Rmd);
 - Shannon evenness (Hill’s ratio, E10) -- baci-e10.html (generated from baci-e10.Rmd);
-- Simpson evenness (Hill’s Ratio, E20) -- baci-e20.html (generated from baci-e20.Rmd).
+- Simpson evenness (Hill’s ratio, E20) -- baci-e20.html (generated from baci-e20.Rmd).
 
 ## Information About the R Session
 
