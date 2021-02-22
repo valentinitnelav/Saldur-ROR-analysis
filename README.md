@@ -37,3 +37,41 @@ The Before-After-Control-Impact (BACI) analysis using the GLMM framework is docu
 - % Ephemeroptera–Plecoptera–Tricoptera (% EPT) -- baci-ept.html (generated from baci-ept.Rmd);
 - Shannon evenness (Hill’s ratio, E10) -- baci-e10.html (generated from baci-e10.Rmd);
 - Simpson evenness (Hill’s Ratio, E20) -- baci-e20.html (generated from baci-e20.Rmd).
+
+## Information About the R Session
+
+Information About the Current R Session at the time of running the BACI analysis:
+
+```r
+> sessionInfo()
+R version 4.0.4 (2021-02-15)
+Platform: x86_64-pc-linux-gnu (64-bit)
+Running under: Ubuntu 20.04.2 LTS
+
+Matrix products: default
+BLAS:   /usr/lib/x86_64-linux-gnu/blas/libblas.so.3.9.0
+LAPACK: /usr/lib/x86_64-linux-gnu/lapack/liblapack.so.3.9.0
+
+locale:
+ [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C               LC_TIME=de_DE.UTF-8        LC_COLLATE=en_US.UTF-8     LC_MONETARY=de_DE.UTF-8   
+ [6] LC_MESSAGES=en_US.UTF-8    LC_PAPER=de_DE.UTF-8       LC_NAME=C                  LC_ADDRESS=C               LC_TELEPHONE=C            
+[11] LC_MEASUREMENT=de_DE.UTF-8 LC_IDENTIFICATION=C       
+
+attached base packages:
+[1] parallel  stats     graphics  grDevices utils     datasets  methods   base     
+
+other attached packages:
+[1] directlabels_2021.1.13 ggplot2_3.3.3          magrittr_2.0.1         data.table_1.13.6      DHARMa_0.3.3.0         lsmeans_2.30-0        
+[7] emmeans_1.5.4          AICcmodavg_2.3-1       glmmTMB_1.0.2.1       
+
+loaded via a namespace (and not attached):
+ [1] Rcpp_1.0.6        mvtnorm_1.1-1     lattice_0.20-41   zoo_1.8-8         assertthat_0.2.1  digest_0.6.27     unmarked_1.0.1   
+ [8] foreach_1.5.1     R6_2.5.0          plyr_1.8.6        stats4_4.0.4      evaluate_0.14     coda_0.19-4       pillar_1.4.7     
+[15] rlang_0.4.10      multcomp_1.4-16   minqa_1.2.4       raster_3.4-5      nloptr_1.2.2.2    Matrix_1.3-2      rmarkdown_2.7    
+[22] splines_4.0.4     lme4_1.1-26       statmod_1.4.35    TMB_1.7.19        munsell_0.5.0     compiler_4.0.4    xfun_0.21        
+[29] pkgconfig_2.0.3   htmltools_0.5.1.1 tidyselect_1.1.0  tibble_3.0.6      quadprog_1.5-8    codetools_0.2-18  crayon_1.4.1     
+[36] dplyr_1.0.4       withr_2.4.1       MASS_7.3-53.1     grid_4.0.4        nlme_3.1-152      xtable_1.8-4      gtable_0.3.0     
+[43] lifecycle_1.0.0   DBI_1.1.1         scales_1.1.1      estimability_1.3  sp_1.4-5          ellipsis_0.3.1    vctrs_0.3.6      
+[50] generics_0.1.0    boot_1.3-27       sandwich_3.0-0    TH.data_1.0-10    iterators_1.0.13  tools_4.0.4       glue_1.4.2       
+[57] purrr_0.3.4       survival_3.2-7    yaml_2.2.1        colorspace_2.0-0  VGAM_1.1-5        knitr_1.31       
+```
