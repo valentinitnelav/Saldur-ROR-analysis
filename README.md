@@ -36,7 +36,7 @@ The Before-After-Control-Impact (BACI) analysis using the GLMM framework is docu
 - density (individuals/m2) -- baci-density.html (generated from baci-density.Rmd);
 - % Ephemeroptera–Plecoptera–Tricoptera (% EPT) -- baci-ept.html (generated from baci-ept.Rmd);
 - Shannon evenness (Hill’s ratio, E10) -- baci-e10.html (generated from baci-e10.Rmd);
-- Simpson evenness (Hill’s Ratio, E20) -- baci-e20.html (generated from baci-e20.Rmd).
+- Simpson evenness (Hill’s ratio, E20) -- baci-e20.html (generated from baci-e20.Rmd).
 
 ## Information About the R Session
 
