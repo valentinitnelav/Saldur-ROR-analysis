@@ -1,10 +1,13 @@
 # Overview
 
-R code for the analysis of the environmental impact of a "run-of-river" hydropower plant on the riverine ecosystem of the Saldur stream, a glacier-fed stream located in the Italian Central-Eastern Alps. Link to scientific article: (soon)
+This repository contains the R scripts and data used for performing the analysis in:
+"Small hydropower – small ecological footprint? A multi-annual environmental impact analysis using aquatic macroinvertebrates as bioindicators. Part 1: effects on community structure"
+
+Here we provide the analysis of the environmental impact of a "run-of-river" hydropower plant on the riverine ecosystem of the Saldur stream, a glacier-fed stream located in the Italian Central-Eastern Alps.
 
 ## License
 
-Note that, this repository is NOT to be freely used, modified, and shared for the moment.
+Upon acceptance we will release a permisible license.
 
 ## How to use this repository
 
