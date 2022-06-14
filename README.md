@@ -1,5 +1,7 @@
 # Overview
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.6642841.svg)](https://doi.org/10.5281/zenodo.6642841)
+
 This repository contains the R scripts and data used for performing the analysis in:
 "Small hydropower – small ecological footprint? A multi-annual environmental impact analysis using aquatic macroinvertebrates as bioindicators. Part 1: effects on community structure"
 
