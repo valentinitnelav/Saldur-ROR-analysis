@@ -1,51 +1,38 @@
 # Overview
 
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.6642841.svg)](https://doi.org/10.5281/zenodo.6642841)
+Here we provide the analysis of the environmental impact of a "run-of-river" hydropower plant on the riverine ecosystem of the Saldur stream, a glacier-fed stream located in the Italian Central-Eastern Alps. 
 
-This repository contains the R scripts and data used for performing the analysis in:
-"Small hydropower – small ecological footprint? A multi-annual environmental impact analysis using aquatic macroinvertebrates as bioindicators. Part 1: effects on community structure"
+This analysis is associated with the paper: [Small hydropower – small ecological footprint? A multi-annual environmental impact analysis using aquatic macroinvertebrates as bioindicators. Part 1: effects on community structure][1].
 
-Here we provide the analysis of the environmental impact of a "run-of-river" hydropower plant on the riverine ecosystem of the Saldur stream, a glacier-fed stream located in the Italian Central-Eastern Alps.
-
-## License
-
-Upon acceptance we will release a permisible license.
-
-## How to use this repository
-
-You can [download][1] or clone the repository then run the scripts using the *Saldur-ROR-analysis.Rproj* file ([R][2] and [R Studio][3] are needed).
-
-For cloning, run this in a terminal (git should be [installed][4]):
-
-```
-git clone https://github.com/valentinitnelav/Saldur-ROR-analysis.git
-```
-
-Check also the readme file in the *analysis* folder with details about the scripts.
-
-[1]: https://github.com/valentinitnelav/Saldur-ROR-analysis/archive/main.zip
-[2]: https://www.r-project.org/
-[3]: https://www.rstudio.com/products/rstudio/download/
-[4]: https://git-scm.com/downloads
+[1]: https://www.frontiersin.org/articles/10.3389/fenvs.2022.902603/abstract
 
 ## Data
 
-The original data are hosted by "PANGAEA - Data Publisher for Earth & Environmental Science".
-Data repository at this permanent address: https://doi.pangaea.de/10.1594/PANGAEA.922524
+The original data are hosted by "PANGAEA - Data Publisher for Earth & Environmental Science". The data repository is located [here][2].
 
-From this original file we derived all the pre-prepared files included and stored in this repository in the "data" folder, which can be used as input files or templates for faster analyses.
+From this original file we derived all the data files included and stored in our GitHub repository in the [data][3] folder, which were used for the analyses mentioned below.
 
-## Scripts/Analysis
+[2]: https://doi.pangaea.de/10.1594/PANGAEA.922524
+[3]: https://github.com/valentinitnelav/Saldur-ROR-analysis/tree/main/data
 
-The analysis of similarities, spatial and temporal beta-diversity calculations, and indicator taxa analysis are presented in the script `analysis/anosim_beta_multipatt.R`.
+## Analysis
 
-The Before-After-Control-Impact (BACI) analysis using the GLMM framework is documented in the directory `analysis/baci_glmm`. The reader is encouraged to follow the html reports. Each report corresponds to the following variables of interest:
+The analysis of similarities, spatial and temporal beta-diversity calculations, and indicator taxa analysis are presented in the script [analysis/anosim_beta_multipatt.R][4].
 
-- taxonomic richness (N0) -- <a href="./analysis/baci_glmm/baci-n0.html">baci-n0.html</a> (generated from baci-n0.Rmd); 
-- density (individuals/m2) -- baci-density.html (generated from baci-density.Rmd);
-- % Ephemeroptera–Plecoptera–Tricoptera (% EPT) -- baci-ept.html (generated from baci-ept.Rmd);
-- Shannon evenness (Hill’s ratio, E10) -- baci-e10.html (generated from baci-e10.Rmd);
-- Simpson evenness (Hill’s ratio, E20) -- baci-e20.html (generated from baci-e20.Rmd).
+Below you find HTML reports for the Before-After-Control-Impact (BACI) analysis using the GLMM framework for the following variables:
+
+- <a href="baci-n0.html">taxonomic richness (N0)</a>, generated from [baci-n0.Rmd][5];
+- <a href="baci-density.html">density (individuals/m2)</a>, generated from [baci-density.Rmd][6];
+- <a href="baci-ept.html">% Ephemeroptera–Plecoptera–Tricoptera (% EPT)</a>, generated from [baci-ept.Rmd][7];
+- <a href="baci-e10.html">Shannon evenness (Hill’s ratio, E10)</a>, generated from [baci-e10.Rmd][8];
+- <a href="baci-e20.html">Simpson evenness (Hill’s ratio, E20)</a>, generated from [baci-e20.Rmd][9];
+
+[4]: https://github.com/valentinitnelav/Saldur-ROR-analysis/blob/main/analysis/anosim_beta_multipatt.R
+[5]: https://github.com/valentinitnelav/Saldur-ROR-analysis/blob/main/analysis/baci_glmm/baci-n0.Rmd
+[6]: https://github.com/valentinitnelav/Saldur-ROR-analysis/blob/main/analysis/baci_glmm/baci-density.Rmd
+[7]: https://github.com/valentinitnelav/Saldur-ROR-analysis/blob/main/analysis/baci_glmm/baci-ept.Rmd
+[8]: https://github.com/valentinitnelav/Saldur-ROR-analysis/blob/main/analysis/baci_glmm/baci-e10.Rmd
+[9]: https://github.com/valentinitnelav/Saldur-ROR-analysis/blob/main/analysis/baci_glmm/baci-e20.Rmd
 
 ## Information About the R Session
 
@@ -84,4 +71,3 @@ loaded via a namespace (and not attached):
 [50] generics_0.1.0    boot_1.3-27       sandwich_3.0-0    TH.data_1.0-10    iterators_1.0.13  tools_4.0.4       glue_1.4.2       
 [57] purrr_0.3.4       survival_3.2-7    yaml_2.2.1        colorspace_2.0-0  VGAM_1.1-5        knitr_1.31       
 ```
-

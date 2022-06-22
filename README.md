@@ -2,85 +2,51 @@
 
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.6642841.svg)](https://doi.org/10.5281/zenodo.6642841)
 
-This repository contains the R scripts and data used for performing the analysis in:
-"Small hydropower – small ecological footprint? A multi-annual environmental impact analysis using aquatic macroinvertebrates as bioindicators. Part 1: effects on community structure"
+Here we provide the analysis of the environmental impact of a "run-of-river" hydropower plant on the riverine ecosystem of the Saldur stream, a glacier-fed stream located in the Italian Central-Eastern Alps. 
 
-Here we provide the analysis of the environmental impact of a "run-of-river" hydropower plant on the riverine ecosystem of the Saldur stream, a glacier-fed stream located in the Italian Central-Eastern Alps.
+This analysis is associated with the paper: [Small hydropower – small ecological footprint? A multi-annual environmental impact analysis using aquatic macroinvertebrates as bioindicators. Part 1: effects on community structure][1].
 
-## License
-
-Upon acceptance we will release a permisible license.
+[1]: https://www.frontiersin.org/articles/10.3389/fenvs.2022.902603/abstract
 
 ## How to use this repository
 
-You can [download][1] or clone the repository then run the scripts using the *Saldur-ROR-analysis.Rproj* file ([R][2] and [R Studio][3] are needed).
+You can view the analysis HTML reports at [this GitHub Pages link][2].
 
-For cloning, run this in a terminal (git should be [installed][4]):
+Alternatively, you can [download][3] or clone the repository then run the scripts using the *Saldur-ROR-analysis.Rproj* file ([R][4] and [R Studio][5] are needed).
+
+For cloning, run the following command in a terminal (first, git should be [installed][6]):
 
 ```
-git clone https://github.com/valentinitnelav/Saldur-ROR-analysis.git
+git clone https://github.com/valentinitnelav/Saldur-ROR-analysis
 ```
 
-Check also the readme file in the *analysis* folder with details about the scripts.
-
-[1]: https://github.com/valentinitnelav/Saldur-ROR-analysis/archive/main.zip
-[2]: https://www.r-project.org/
-[3]: https://www.rstudio.com/products/rstudio/download/
-[4]: https://git-scm.com/downloads
+[2]: https://valentinitnelav.github.io/Saldur-ROR-analysis/
+[3]: https://github.com/valentinitnelav/Saldur-ROR-analysis/archive/main.zip
+[4]: https://www.r-project.org/
+[5]: https://www.rstudio.com/products/rstudio/download/
+[6]: https://git-scm.com/downloads
 
 ## Data
 
-The original data are hosted by "PANGAEA - Data Publisher for Earth & Environmental Science".
-Data repository at this permanent address: https://doi.pangaea.de/10.1594/PANGAEA.922524
+The original data are hosted by "PANGAEA - Data Publisher for Earth & Environmental Science". The data repository is located [here][7].
 
-From this original file we derived all the pre-prepared files included and stored in this repository in the "data" folder, which can be used as input files or templates for faster analyses.
+From this original file we derived all the data files included and stored in our GitHub repository in the `./data` folder.
 
-## Scripts/Analysis
+[7]: https://doi.pangaea.de/10.1594/PANGAEA.922524
 
-The analysis of similarities, spatial and temporal beta-diversity calculations, and indicator taxa analysis are presented in the script `analysis/anosim_beta_multipatt.R`.
+## Analysis
 
-The Before-After-Control-Impact (BACI) analysis using the GLMM framework is documented in the directory `analysis/baci_glmm`. The reader is encouraged to follow the html reports. Each report corresponds to the following variables of interest:
+You can either read the analysis at [this GitHub Pages link][2], or if you prefer to download or clone the repository, then:
 
-- taxonomic richness (N0) -- baci-n0.html (generated from baci-n0.Rmd);
-- density (individuals/m2) -- baci-density.html (generated from baci-density.Rmd);
-- % Ephemeroptera–Plecoptera–Tricoptera (% EPT) -- baci-ept.html (generated from baci-ept.Rmd);
-- Shannon evenness (Hill’s ratio, E10) -- baci-e10.html (generated from baci-e10.Rmd);
-- Simpson evenness (Hill’s ratio, E20) -- baci-e20.html (generated from baci-e20.Rmd).
+- the analysis of similarities, spatial and temporal beta-diversity calculations, and indicator taxa analysis are presented in the script `analysis/anosim_beta_multipatt.R`.
+- the Before-After-Control-Impact (BACI) analysis using the GLMM framework is documented in the directory `analysis/baci_glmm`. You can open and read the html reports in your browser. Each report corresponds to the following variables of interest:
 
-## Information About the R Session
+  - taxonomic richness (N0) -- baci-n0.html (generated from baci-n0.Rmd);
+  - density (individuals/m2) -- baci-density.html (generated from baci-density.Rmd);
+  - % Ephemeroptera–Plecoptera–Tricoptera (% EPT) -- baci-ept.html (generated from baci-ept.Rmd);
+  - Shannon evenness (Hill’s ratio, E10) -- baci-e10.html (generated from baci-e10.Rmd);
+  - Simpson evenness (Hill’s ratio, E20) -- baci-e20.html (generated from baci-e20.Rmd).
 
-Information About the Current R Session at the time of running the BACI analysis:
+## License - MIT
 
-```r
-> sessionInfo()
-R version 4.0.4 (2021-02-15)
-Platform: x86_64-pc-linux-gnu (64-bit)
-Running under: Ubuntu 20.04.2 LTS
-
-Matrix products: default
-BLAS:   /usr/lib/x86_64-linux-gnu/blas/libblas.so.3.9.0
-LAPACK: /usr/lib/x86_64-linux-gnu/lapack/liblapack.so.3.9.0
-
-locale:
- [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C               LC_TIME=de_DE.UTF-8        LC_COLLATE=en_US.UTF-8     LC_MONETARY=de_DE.UTF-8   
- [6] LC_MESSAGES=en_US.UTF-8    LC_PAPER=de_DE.UTF-8       LC_NAME=C                  LC_ADDRESS=C               LC_TELEPHONE=C            
-[11] LC_MEASUREMENT=de_DE.UTF-8 LC_IDENTIFICATION=C       
-
-attached base packages:
-[1] parallel  stats     graphics  grDevices utils     datasets  methods   base     
-
-other attached packages:
-[1] directlabels_2021.1.13 ggplot2_3.3.3          magrittr_2.0.1         data.table_1.13.6      DHARMa_0.3.3.0         lsmeans_2.30-0        
-[7] emmeans_1.5.4          AICcmodavg_2.3-1       glmmTMB_1.0.2.1       
-
-loaded via a namespace (and not attached):
- [1] Rcpp_1.0.6        mvtnorm_1.1-1     lattice_0.20-41   zoo_1.8-8         assertthat_0.2.1  digest_0.6.27     unmarked_1.0.1   
- [8] foreach_1.5.1     R6_2.5.0          plyr_1.8.6        stats4_4.0.4      evaluate_0.14     coda_0.19-4       pillar_1.4.7     
-[15] rlang_0.4.10      multcomp_1.4-16   minqa_1.2.4       raster_3.4-5      nloptr_1.2.2.2    Matrix_1.3-2      rmarkdown_2.7    
-[22] splines_4.0.4     lme4_1.1-26       statmod_1.4.35    TMB_1.7.19        munsell_0.5.0     compiler_4.0.4    xfun_0.21        
-[29] pkgconfig_2.0.3   htmltools_0.5.1.1 tidyselect_1.1.0  tibble_3.0.6      quadprog_1.5-8    codetools_0.2-18  crayon_1.4.1     
-[36] dplyr_1.0.4       withr_2.4.1       MASS_7.3-53.1     grid_4.0.4        nlme_3.1-152      xtable_1.8-4      gtable_0.3.0     
-[43] lifecycle_1.0.0   DBI_1.1.1         scales_1.1.1      estimability_1.3  sp_1.4-5          ellipsis_0.3.1    vctrs_0.3.6      
-[50] generics_0.1.0    boot_1.3-27       sandwich_3.0-0    TH.data_1.0-10    iterators_1.0.13  tools_4.0.4       glue_1.4.2       
-[57] purrr_0.3.4       survival_3.2-7    yaml_2.2.1        colorspace_2.0-0  VGAM_1.1-5        knitr_1.31       
-```
+See LICENSE file in this repository.

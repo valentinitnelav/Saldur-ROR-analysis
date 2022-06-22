@@ -354,35 +354,23 @@ div.tocify {
 
 <div id="overview" class="section level1">
 <h1>Overview</h1>
-<p><a href="https://doi.org/10.5281/zenodo.6642841"><img src="https://zenodo.org/badge/DOI/10.5281/zenodo.6642841.svg" alt="DOI" /></a></p>
-<p>This repository contains the R scripts and data used for performing the analysis in: “Small hydropower – small ecological footprint? A multi-annual environmental impact analysis using aquatic macroinvertebrates as bioindicators. Part 1: effects on community structure”</p>
 <p>Here we provide the analysis of the environmental impact of a “run-of-river” hydropower plant on the riverine ecosystem of the Saldur stream, a glacier-fed stream located in the Italian Central-Eastern Alps.</p>
-<div id="license" class="section level2">
-<h2>License</h2>
-<p>Upon acceptance we will release a permisible license.</p>
-</div>
-<div id="how-to-use-this-repository" class="section level2">
-<h2>How to use this repository</h2>
-<p>You can <a href="https://github.com/valentinitnelav/Saldur-ROR-analysis/archive/main.zip">download</a> or clone the repository then run the scripts using the <em>Saldur-ROR-analysis.Rproj</em> file (<a href="https://www.r-project.org/">R</a> and <a href="https://www.rstudio.com/products/rstudio/download/">R Studio</a> are needed).</p>
-<p>For cloning, run this in a terminal (git should be <a href="https://git-scm.com/downloads">installed</a>):</p>
-<pre><code>git clone https://github.com/valentinitnelav/Saldur-ROR-analysis.git</code></pre>
-<p>Check also the readme file in the <em>analysis</em> folder with details about the scripts.</p>
-</div>
+<p>This analysis is associated with the paper: <a href="https://www.frontiersin.org/articles/10.3389/fenvs.2022.902603/abstract">Small hydropower – small ecological footprint? A multi-annual environmental impact analysis using aquatic macroinvertebrates as bioindicators. Part 1: effects on community structure</a>.</p>
 <div id="data" class="section level2">
 <h2>Data</h2>
-<p>The original data are hosted by “PANGAEA - Data Publisher for Earth &amp; Environmental Science”. Data repository at this permanent address: <a href="https://doi.pangaea.de/10.1594/PANGAEA.922524" class="uri">https://doi.pangaea.de/10.1594/PANGAEA.922524</a></p>
-<p>From this original file we derived all the pre-prepared files included and stored in this repository in the “data” folder, which can be used as input files or templates for faster analyses.</p>
+<p>The original data are hosted by “PANGAEA - Data Publisher for Earth &amp; Environmental Science”. The data repository is located <a href="https://doi.pangaea.de/10.1594/PANGAEA.922524">here</a>.</p>
+<p>From this original file we derived all the data files included and stored in our GitHub repository in the <a href="https://github.com/valentinitnelav/Saldur-ROR-analysis/tree/main/data">data</a> folder, which were used for the analyses mentioned below.</p>
 </div>
-<div id="scriptsanalysis" class="section level2">
-<h2>Scripts/Analysis</h2>
-<p>The analysis of similarities, spatial and temporal beta-diversity calculations, and indicator taxa analysis are presented in the script <code>analysis/anosim_beta_multipatt.R</code>.</p>
-<p>The Before-After-Control-Impact (BACI) analysis using the GLMM framework is documented in the directory <code>analysis/baci_glmm</code>. The reader is encouraged to follow the html reports. Each report corresponds to the following variables of interest:</p>
+<div id="analysis" class="section level2">
+<h2>Analysis</h2>
+<p>The analysis of similarities, spatial and temporal beta-diversity calculations, and indicator taxa analysis are presented in the script <a href="https://github.com/valentinitnelav/Saldur-ROR-analysis/blob/main/analysis/anosim_beta_multipatt.R">analysis/anosim_beta_multipatt.R</a>.</p>
+<p>Below you find HTML reports for the Before-After-Control-Impact (BACI) analysis using the GLMM framework for the following variables:</p>
 <ul>
-<li>taxonomic richness (N0) – <a href="baci-n0.html">baci-n0.html</a> (generated from baci-n0.Rmd);</li>
-<li>density (individuals/m2) – baci-density.html (generated from baci-density.Rmd);</li>
-<li>% Ephemeroptera–Plecoptera–Tricoptera (% EPT) – baci-ept.html (generated from baci-ept.Rmd);</li>
-<li>Shannon evenness (Hill’s ratio, E10) – baci-e10.html (generated from baci-e10.Rmd);</li>
-<li>Simpson evenness (Hill’s ratio, E20) – baci-e20.html (generated from baci-e20.Rmd).</li>
+<li><a href="baci-n0.html">taxonomic richness (N0)</a>, generated from <a href="https://github.com/valentinitnelav/Saldur-ROR-analysis/blob/main/analysis/baci_glmm/baci-n0.Rmd">baci-n0.Rmd</a>;</li>
+<li><a href="baci-density.html">density (individuals/m2)</a>, generated from <a href="https://github.com/valentinitnelav/Saldur-ROR-analysis/blob/main/analysis/baci_glmm/baci-density.Rmd">baci-density.Rmd</a>;</li>
+<li><a href="baci-ept.html">% Ephemeroptera–Plecoptera–Tricoptera (% EPT)</a>, generated from <a href="https://github.com/valentinitnelav/Saldur-ROR-analysis/blob/main/analysis/baci_glmm/baci-ept.Rmd">baci-ept.Rmd</a>;</li>
+<li><a href="baci-e10.html">Shannon evenness (Hill’s ratio, E10)</a>, generated from <a href="https://github.com/valentinitnelav/Saldur-ROR-analysis/blob/main/analysis/baci_glmm/baci-e10.Rmd">baci-e10.Rmd</a>;</li>
+<li><a href="baci-e20.html">Simpson evenness (Hill’s ratio, E20)</a>, generated from <a href="https://github.com/valentinitnelav/Saldur-ROR-analysis/blob/main/analysis/baci_glmm/baci-e20.Rmd">baci-e20.Rmd</a>;</li>
 </ul>
 </div>
 <div id="information-about-the-r-session" class="section level2">
