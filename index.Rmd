@@ -41,7 +41,7 @@ The analysis of similarities, spatial and temporal beta-diversity calculations, 
 
 The Before-After-Control-Impact (BACI) analysis using the GLMM framework is documented in the directory `analysis/baci_glmm`. The reader is encouraged to follow the html reports. Each report corresponds to the following variables of interest:
 
-- taxonomic richness (N0) -- <a href="baci-n0.html">baci-n0.html</a> (generated from baci-n0.Rmd); 
+- taxonomic richness (N0) -- <a href="./analysis/baci_glmm/baci-n0.html">baci-n0.html</a> (generated from baci-n0.Rmd); 
 - density (individuals/m2) -- baci-density.html (generated from baci-density.Rmd);
 - % Ephemeroptera–Plecoptera–Tricoptera (% EPT) -- baci-ept.html (generated from baci-ept.Rmd);
 - Shannon evenness (Hill’s ratio, E10) -- baci-e10.html (generated from baci-e10.Rmd);
