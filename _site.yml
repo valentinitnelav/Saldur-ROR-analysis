@@ -1,0 +1,15 @@
+name: "Saldur ROR analysis"
+output_dir: "./docs"
+navbar:
+  title: "Saldur ROR analysis"
+  left:
+    - text: "Home"
+      icon: fa-home
+      href: index.html
+output:
+  html_document:
+    theme: cosmo
+    highlight: textmate
+    toc: true
+    toc_float:
+      collapsed: false
