@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+
+
+<title>index.knit</title>
+
+<script src="site_libs/header-attrs-2.14/header-attrs.js"></script>
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<link href="site_libs/font-awesome-5.1.0/css/all.css" rel="stylesheet" />
+<link href="site_libs/font-awesome-5.1.0/css/v4-shims.css" rel="stylesheet" />
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+
+
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+<style type="text/css">
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #adb5bd;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script type="text/javascript">
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.tab('show');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+.tocify-subheader {
+  display: inline;
+}
+.tocify-subheader .tocify-item {
+  font-size: 0.95em;
+}
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-bs-toggle="collapse" data-target="#navbar" data-bs-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">Saldur ROR analysis</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">
+    <span class="fa fa-home"></span>
+     
+    Home
+  </a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div id="header">
+
+
+
+
+</div>
+
+
+<div id="overview" class="section level1">
+<h1>Overview</h1>
+<p><a href="https://doi.org/10.5281/zenodo.6642841"><img src="https://zenodo.org/badge/DOI/10.5281/zenodo.6642841.svg" alt="DOI" /></a></p>
+<p>This repository contains the R scripts and data used for performing the analysis in: “Small hydropower – small ecological footprint? A multi-annual environmental impact analysis using aquatic macroinvertebrates as bioindicators. Part 1: effects on community structure”</p>
+<p>Here we provide the analysis of the environmental impact of a “run-of-river” hydropower plant on the riverine ecosystem of the Saldur stream, a glacier-fed stream located in the Italian Central-Eastern Alps.</p>
+<div id="license" class="section level2">
+<h2>License</h2>
+<p>Upon acceptance we will release a permisible license.</p>
+</div>
+<div id="how-to-use-this-repository" class="section level2">
+<h2>How to use this repository</h2>
+<p>You can <a href="https://github.com/valentinitnelav/Saldur-ROR-analysis/archive/main.zip">download</a> or clone the repository then run the scripts using the <em>Saldur-ROR-analysis.Rproj</em> file (<a href="https://www.r-project.org/">R</a> and <a href="https://www.rstudio.com/products/rstudio/download/">R Studio</a> are needed).</p>
+<p>For cloning, run this in a terminal (git should be <a href="https://git-scm.com/downloads">installed</a>):</p>
+<pre><code>git clone https://github.com/valentinitnelav/Saldur-ROR-analysis.git</code></pre>
+<p>Check also the readme file in the <em>analysis</em> folder with details about the scripts.</p>
+</div>
+<div id="data" class="section level2">
+<h2>Data</h2>
+<p>The original data are hosted by “PANGAEA - Data Publisher for Earth &amp; Environmental Science”. Data repository at this permanent address: <a href="https://doi.pangaea.de/10.1594/PANGAEA.922524" class="uri">https://doi.pangaea.de/10.1594/PANGAEA.922524</a></p>
+<p>From this original file we derived all the pre-prepared files included and stored in this repository in the “data” folder, which can be used as input files or templates for faster analyses.</p>
+</div>
+<div id="scriptsanalysis" class="section level2">
+<h2>Scripts/Analysis</h2>
+<p>The analysis of similarities, spatial and temporal beta-diversity calculations, and indicator taxa analysis are presented in the script <code>analysis/anosim_beta_multipatt.R</code>.</p>
+<p>The Before-After-Control-Impact (BACI) analysis using the GLMM framework is documented in the directory <code>analysis/baci_glmm</code>. The reader is encouraged to follow the html reports. Each report corresponds to the following variables of interest:</p>
+<ul>
+<li>taxonomic richness (N0) – <a href="baci-n0.html">baci-n0.html</a> (generated from baci-n0.Rmd);</li>
+<li>density (individuals/m2) – baci-density.html (generated from baci-density.Rmd);</li>
+<li>% Ephemeroptera–Plecoptera–Tricoptera (% EPT) – baci-ept.html (generated from baci-ept.Rmd);</li>
+<li>Shannon evenness (Hill’s ratio, E10) – baci-e10.html (generated from baci-e10.Rmd);</li>
+<li>Simpson evenness (Hill’s ratio, E20) – baci-e20.html (generated from baci-e20.Rmd).</li>
+</ul>
+</div>
+<div id="information-about-the-r-session" class="section level2">
+<h2>Information About the R Session</h2>
+<p>Information About the Current R Session at the time of running the BACI analysis:</p>
+<pre class="r"><code>&gt; sessionInfo()
+R version 4.0.4 (2021-02-15)
+Platform: x86_64-pc-linux-gnu (64-bit)
+Running under: Ubuntu 20.04.2 LTS
+
+Matrix products: default
+BLAS:   /usr/lib/x86_64-linux-gnu/blas/libblas.so.3.9.0
+LAPACK: /usr/lib/x86_64-linux-gnu/lapack/liblapack.so.3.9.0
+
+locale:
+ [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C               LC_TIME=de_DE.UTF-8        LC_COLLATE=en_US.UTF-8     LC_MONETARY=de_DE.UTF-8   
+ [6] LC_MESSAGES=en_US.UTF-8    LC_PAPER=de_DE.UTF-8       LC_NAME=C                  LC_ADDRESS=C               LC_TELEPHONE=C            
+[11] LC_MEASUREMENT=de_DE.UTF-8 LC_IDENTIFICATION=C       
+
+attached base packages:
+[1] parallel  stats     graphics  grDevices utils     datasets  methods   base     
+
+other attached packages:
+[1] directlabels_2021.1.13 ggplot2_3.3.3          magrittr_2.0.1         data.table_1.13.6      DHARMa_0.3.3.0         lsmeans_2.30-0        
+[7] emmeans_1.5.4          AICcmodavg_2.3-1       glmmTMB_1.0.2.1       
+
+loaded via a namespace (and not attached):
+ [1] Rcpp_1.0.6        mvtnorm_1.1-1     lattice_0.20-41   zoo_1.8-8         assertthat_0.2.1  digest_0.6.27     unmarked_1.0.1   
+ [8] foreach_1.5.1     R6_2.5.0          plyr_1.8.6        stats4_4.0.4      evaluate_0.14     coda_0.19-4       pillar_1.4.7     
+[15] rlang_0.4.10      multcomp_1.4-16   minqa_1.2.4       raster_3.4-5      nloptr_1.2.2.2    Matrix_1.3-2      rmarkdown_2.7    
+[22] splines_4.0.4     lme4_1.1-26       statmod_1.4.35    TMB_1.7.19        munsell_0.5.0     compiler_4.0.4    xfun_0.21        
+[29] pkgconfig_2.0.3   htmltools_0.5.1.1 tidyselect_1.1.0  tibble_3.0.6      quadprog_1.5-8    codetools_0.2-18  crayon_1.4.1     
+[36] dplyr_1.0.4       withr_2.4.1       MASS_7.3-53.1     grid_4.0.4        nlme_3.1-152      xtable_1.8-4      gtable_0.3.0     
+[43] lifecycle_1.0.0   DBI_1.1.1         scales_1.1.1      estimability_1.3  sp_1.4-5          ellipsis_0.3.1    vctrs_0.3.6      
+[50] generics_0.1.0    boot_1.3-27       sandwich_3.0-0    TH.data_1.0-10    iterators_1.0.13  tools_4.0.4       glue_1.4.2       
+[57] purrr_0.3.4       survival_3.2-7    yaml_2.2.1        colorspace_2.0-0  VGAM_1.1-5        knitr_1.31       </code></pre>
+</div>
+</div>
+
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+
+<script>
+$(document).ready(function ()  {
+
+    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
+    $('.unlisted.unnumbered').addClass('toc-ignore')
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = false;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
