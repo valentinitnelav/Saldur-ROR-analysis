@@ -1,7 +1,10 @@
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
-# Accompanying code for the paper "xxx", authored by
-# Alberto Scotti, Dean Jacobsen, Valentin Stefan, Ulrike Tappeiner, and Roberta Bottarin.
+# Accompanying code for the paper "Small hydropower – small ecological
+# footprint? A multi-annual environmental impact analysis using aquatic
+# macroinvertebrates as bioindicators. Part 1: effects on community structure",
+# authored by Alberto Scotti, Dean Jacobsen, Valentin Stefan, Ulrike Tappeiner,
+# and Roberta Bottarin.
 #
 # Script authored by Alberto Scotti.
 # Please refer to the article for detailed methodological explanations and relevant citations.

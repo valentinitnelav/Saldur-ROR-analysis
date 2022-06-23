@@ -1,6 +1,6 @@
 # Overview
 
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.6642841.svg)](https://doi.org/10.5281/zenodo.6642841)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.6686873.svg)](https://doi.org/10.5281/zenodo.6686873)
 
 Here we provide the analysis of the environmental impact of a "run-of-river" hydropower plant on the riverine ecosystem of the Saldur stream, a glacier-fed stream located in the Italian Central-Eastern Alps. 
 
