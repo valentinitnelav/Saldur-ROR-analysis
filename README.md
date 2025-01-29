@@ -39,13 +39,19 @@ From this original file we derived all the data files included and stored in our
 You can either read the analysis at [this GitHub Pages link][2], or if you prefer to download or clone the repository, then:
 
 - the analysis of similarities, spatial and temporal beta-diversity calculations, and indicator taxa analysis are presented in the script `analysis/anosim_beta_multipatt.R`.
-- the Before-After-Control-Impact (BACI) analysis using the GLMM framework is documented in the directory `analysis/baci_glmm`. You can open and read the html reports in your browser. Each report corresponds to the following variables of interest:
+- the Before-After-Control-Impact (BACI) analysis using the GLMM framework is documented in the directory `analysis/baci_glmm`. You can open and read the html reports in your browser. Each HTML report corresponds to the following variables of interest:
 
-  - taxonomic richness (N0) -- baci-n0.html (generated from baci-n0.Rmd);
-  - density (individuals/m2) -- baci-density.html (generated from baci-density.Rmd);
-  - % Ephemeroptera–Plecoptera–Tricoptera (% EPT) -- baci-ept.html (generated from baci-ept.Rmd);
-  - Shannon evenness (Hill’s ratio, E10) -- baci-e10.html (generated from baci-e10.Rmd);
-  - Simpson evenness (Hill’s ratio, E20) -- baci-e20.html (generated from baci-e20.Rmd).
+  - taxonomic richness (N0), [baci-n0.html][8] (generated from baci-n0.Rmd);
+  - density (individuals/m2), [baci-density.html][9] (generated from baci-density.Rmd);
+  - % Ephemeroptera–Plecoptera–Tricoptera (% EPT), [baci-ept.html][10] (generated from baci-ept.Rmd);
+  - Shannon evenness (Hill’s ratio, E10), [baci-e10.html][11] (generated from baci-e10.Rmd);
+  - Simpson evenness (Hill’s ratio, E20), [baci-e20.html][12] (generated from baci-e20.Rmd).
+
+[8]: https://valentinitnelav.github.io/Saldur-ROR-analysis/baci-n0.html
+[9]: https://valentinitnelav.github.io/Saldur-ROR-analysis/baci-density.html
+[10]: https://valentinitnelav.github.io/Saldur-ROR-analysis/baci-ept.html
+[11]: https://valentinitnelav.github.io/Saldur-ROR-analysis/baci-e10.html
+[12]: https://valentinitnelav.github.io/Saldur-ROR-analysis/baci-e20.html
 
 ## License - MIT
 
